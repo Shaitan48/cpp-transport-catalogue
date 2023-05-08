@@ -14,18 +14,22 @@
 
 namespace transportCatalog {
 
+struct Stop;
+
 struct Bus {
     std::string number;
-    std::optional<std::vector<std::string>> stops;
+    std::vector<Stop*> stops;
 };
 
-struct Stop {
+struct Stop
+{
     std::string name;
     geo::Coordinates coordinates;
-    std::set<std::string> buses;
-    //std::unordered_map<const Stop*, double> distance_map;
-    std::unordered_map<std::string, double> distance_map;
+    std::set<Bus*> buses;
+    //std::unordered_map<std::string, double> distance_map;
 };
+
+
 
 struct RouteInfo {
     size_t stops_count;
@@ -34,22 +38,19 @@ struct RouteInfo {
     double  curvature ;
 };
 
-//struct StopInfo {
-//    std::optional<std::set<std::string>> buses;
-//};
 
 class TransportCatalogue {
 public:
-    void AddRoute(const std::string& route_number, const std::vector<std::string>& route_stops);
-    void AddStop(const std::string& stop_name, geo::Coordinates& coordinates);
-    void AddDistance(Stop *ssourse, Stop *destination, double dist);
-    int GetDistance(Stop *sourse, Stop *destination) const;
-    const Bus* FindRoute(const std::string& route_number) const;
-    void extracted(const std::string &stop_name) const;
-    Stop* FindStop(const std::string &stop_name) const;
-    const RouteInfo RouteInformation(const std::string& route_number) const;
-    size_t UniqueStopsCount(const std::string& route_number) const ;
-    const std::optional<std::set<std::string> > Stopformation(const std::string& stop_name) const;
+    void AddRoute(std::string_view route_number, const std::vector<std::string>& route_stops);
+    void AddStop(std::string_view stop_name, geo::Coordinates& coordinates);
+    void SetDistance(const Stop *ssourse, const Stop *destination, double dist);
+    int GetDistance(const Stop *sourse, const Stop *destination) const;
+    const Bus* FindRoute(std::string_view route_number) const;
+    //изменение имени не должно сломать ничего вроде..
+    const Stop* FindStop(std::string_view stop_name) const;
+    size_t UniqueStopsCount(std::string_view route_number) const ;
+    const std::optional<RouteInfo> RouteInformation(const std::string& route_number) const;
+    std::optional<std::set<Bus *> > Stopformation(std::string_view stop_name) const;
 
 private:
     std::deque<Bus> all_buses_;
@@ -57,7 +58,28 @@ private:
     std::unordered_map<std::string_view, const Bus*> busname_to_bus_;
     std::unordered_map<std::string_view, Stop*> stopname_to_stop_;
 
-    //std::unordered_map<std::pair<const Stop*,const Stop*>, double> distance_map;
+    Stop* FindStopUnconst(std::string_view stop_name) const;
+
+    class StopPairHasher {
+    public:
+        size_t operator()(std::pair<const Stop* ,const Stop*> p) const {
+            // измените эту функцию, чтобы она учитывала все данные номера
+            // рекомендуется использовать метод ToString() и существующий
+            // класс hash<string>
+            return static_cast<size_t>(
+                        hash_(p.first->name)
+                        +hash_(p.second->name)*37
+                        +p.first->coordinates.lat*37*37
+                        +p.first->coordinates.lng*37*37*37
+                        +p.second->coordinates.lat*37*37*37*37
+                        +p.second->coordinates.lng*37*37*37*37*37
+                        );
+        }
+
+        std::hash<std::string> hash_;
+    };
+
+    std::unordered_map<std::pair<const Stop*,const Stop*>, double,StopPairHasher> distance_map;
 };
 
 }//namespace transportCatalog

@@ -6,6 +6,6 @@
 
 namespace transportCatalog {
 
-void ProcessRequests(std::ostream& out, TransportCatalogue& catalogue);
+void ProcessRequests(std::ostream &out, std::istream &in, const TransportCatalogue& catalogue);
 
 }//namespace transportCatalog

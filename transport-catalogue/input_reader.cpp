@@ -38,11 +38,11 @@ void FillTransportCatalogue(std::istream& in, TransportCatalogue& catalogue) {
     }
 
     for(auto& query : distBuffer){
-        for(auto& stop : detail::SplitBySep(query.second,',')){
+        for(auto& stop : SplitBySep(query.second,',')){
             std::string_view destination = stop.substr(stop.find_first_of('m') + 5);
             double dist = std::stod(std::string(stop.substr(0, stop.find_first_of('m'))));
 
-            catalogue.AddDistance(catalogue.FindStop(query.first),catalogue.FindStop(std::string(destination)),dist);
+            catalogue.SetDistance(catalogue.FindStop(query.first),catalogue.FindStop(std::string(destination)),dist);
         }
 
 
@@ -51,11 +51,10 @@ void FillTransportCatalogue(std::istream& in, TransportCatalogue& catalogue) {
     for(auto line : bussBuffer){
         std::string route_number = line.substr(1, line.find_first_of(':') - 1);
         line.erase(0, line.find_first_of(':') + 2);
-        catalogue.AddRoute(route_number, detail::FillRoute(line));
+        catalogue.AddRoute(route_number, FillRoute(line));
     }
 }
 
-namespace detail {
 
 std::vector<std::string> FillRoute(std::string& line) {
     std::vector<std::string> route_stops;
@@ -104,6 +103,5 @@ std::vector<std::string_view> SplitBySep(std::string_view line, char sep){
 
     return res;
 }
-}//namespace detail
 
 }//namespace transportCatalog
