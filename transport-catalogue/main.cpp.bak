@@ -16,14 +16,15 @@
 
 int main() {
     //setlocale(LC_ALL, "Russian");
-    //std::ifstream file("input.txt");
 
-    //std::ofstream file1("output.txt");
+    std::ifstream file("input.txt");
+
+    std::ofstream file1("output.txt");
 
     transportCatalog::TransportCatalogue catalogue;
 
-    JsonReader requests(std::cin);
-    //JsonReader requests(file);
+    //JsonReader requests(std::cin);
+    JsonReader requests(file);
     requests.FillCatalogue(catalogue);
 
     const auto& stat_requests = requests.GetStatRequests();
@@ -34,8 +35,7 @@ int main() {
     //rh.ProcessRequests(stat_requests);
     //rh.RenderMap().Render(std::cout);
 
-    //requests.ProcessRequests(stat_requests, rh, file1);
+    requests.ProcessRequests(stat_requests, rh, file1);
     requests.ProcessRequests(stat_requests, rh);
 
 }
-

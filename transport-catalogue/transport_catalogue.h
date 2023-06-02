@@ -1,5 +1,6 @@
 #pragma once
 
+#include "domain.h"
 #include "geo.h"
 
 #include <deque>
@@ -11,46 +12,54 @@
 #include <unordered_set>
 #include <set>
 #include <algorithm>
+#include <map>
 
 namespace transportCatalog {
 
 struct Stop;
 
-struct Bus {
-    std::string number;
-    std::vector<Stop*> stops;
-};
+struct Bus
+//{
+//    std::string number;
+//    std::vector<Stop*> stops;
+//}
+;
 
-struct Stop
-{
-    std::string name;
-    geo::Coordinates coordinates;
-    std::set<Bus*> buses;
-    //std::unordered_map<std::string, double> distance_map;
-};
+//struct Stop
+//{
+//    std::string name;
+//    geo::Coordinates coordinates;
+//    std::set<Bus*> buses;
+//    //std::unordered_map<std::string, double> distance_map;
+//}
+//;
 
 
 
-struct RouteInfo {
-    size_t stops_count;
-    size_t unique_stops_count;
-    int route_length;
-    double  curvature ;
-};
+struct RouteInfo
+//{
+//    size_t stops_count;
+//    size_t unique_stops_count;
+//    int route_length;
+//    double  curvature ;
+//}
+;
 
 
 class TransportCatalogue {
 public:
-    void AddRoute(std::string_view route_number, const std::vector<std::string>& route_stops);
+    void AddRoute(std::string_view route_number, const std::vector<std::string>& route_stops, bool is_round);
+    //void AddRoute(Bus* bus);
     void AddStop(std::string_view stop_name, geo::Coordinates& coordinates);
+    //void AddStop(Stop* stop);
     void SetDistance(const Stop *ssourse, const Stop *destination, double dist);
     int GetDistance(const Stop *sourse, const Stop *destination) const;
     const Bus* FindRoute(std::string_view route_number) const;
-    //изменение имени не должно сломать ничего вроде..
     const Stop* FindStop(std::string_view stop_name) const;
     size_t UniqueStopsCount(std::string_view route_number) const ;
     const std::optional<RouteInfo> RouteInformation(const std::string& route_number) const;
     std::optional<std::set<Bus *> > Stopformation(std::string_view stop_name) const;
+    const std::map<std::string_view, const Bus*> GetSortedAllBuses() const;
 
 private:
     std::deque<Bus> all_buses_;

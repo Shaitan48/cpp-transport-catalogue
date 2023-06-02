@@ -2,18 +2,18 @@
 
 namespace transportCatalog {
 
-void TransportCatalogue::AddRoute(std::string_view route_number, const std::vector<std::string>& route_stops) {
+void TransportCatalogue::AddRoute(std::string_view route_number, const std::vector<std::string>& route_stops, bool is_round) {
     std::vector<Stop*> stops;
 
-    for(auto item : route_stops){
-        stops.push_back(FindStopUnconst(item));
+    for(auto& item : route_stops){
+        stops.push_back(stopname_to_stop_.at(item));
     }
 
-    all_buses_.push_back({ std::string(route_number), stops});
+    all_buses_.push_back({ std::string(route_number), stops, is_round});
     busname_to_bus_[all_buses_.back().number] = &all_buses_.back();
 
     for(auto item : stops){
-        item->buses.insert(&all_buses_.back());
+           item->buses.insert(&all_buses_.back());
     }
 }
 
@@ -21,6 +21,7 @@ void TransportCatalogue::AddStop(std::string_view stop_name, geo::Coordinates &c
     all_stops_.push_back({ std::string(stop_name), coordinates,{}});
     stopname_to_stop_[all_stops_.back().name] = &all_stops_.back();
 }
+
 
 void TransportCatalogue::SetDistance(const Stop *sourse,  const Stop *destination, double dist)
 {
@@ -45,7 +46,7 @@ int TransportCatalogue::GetDistance(const Stop *sourse, const Stop *destination)
 }
 
 const Bus* TransportCatalogue::FindRoute(std::string_view route_number) const {
-    auto bus = std::find_if(busname_to_bus_.begin(),busname_to_bus_.end(),[route_number](std::pair<std::string_view, const Bus*> p){return route_number==p.first;});
+    auto bus = busname_to_bus_.find(route_number);
     if(bus!=busname_to_bus_.end())
         return bus->second;
     return nullptr;
@@ -113,6 +114,15 @@ std::optional<std::set<Bus*> > TransportCatalogue::Stopformation(std::string_vie
     //    }
 
     return stopname_to_stop_.at(stop_name)->buses;
+}
+
+const std::map<std::string_view, const Bus *> TransportCatalogue::GetSortedAllBuses() const
+{
+    std::map<std::string_view, const Bus*> result;
+        for (const auto& bus : busname_to_bus_) {
+            result.emplace(bus);
+        }
+        return result;
 }
 
 Stop *TransportCatalogue::FindStopUnconst(std::string_view stop_name) const

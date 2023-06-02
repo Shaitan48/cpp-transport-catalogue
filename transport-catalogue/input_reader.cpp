@@ -51,7 +51,7 @@ void FillTransportCatalogue(std::istream& in, TransportCatalogue& catalogue) {
     for(auto line : bussBuffer){
         std::string route_number = line.substr(1, line.find_first_of(':') - 1);
         line.erase(0, line.find_first_of(':') + 2);
-        catalogue.AddRoute(route_number, FillRoute(line));
+        //catalogue.AddRoute(route_number, FillRoute(line));
     }
 }
 
