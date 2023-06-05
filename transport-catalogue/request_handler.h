@@ -56,8 +56,8 @@ public:
         {
         }
 
-    const transportCatalog::RouteInfo GetRoutStat(const std::string& route_number) const;
-    const std::set<std::string> GetBusesByStop(const std::string& stop_name) const;
+    const transportCatalog::RouteInfo GetRoutStat(const std::string_view route_number) const;
+    const std::set<std::string> GetBusesByStop(const std::string_view stop_name) const;
 
     bool ExistingBus(const std::string_view bus_number) const;
     bool ExistingStop(const std::string_view stop_name) const;

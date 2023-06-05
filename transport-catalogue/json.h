@@ -37,13 +37,32 @@ public:
 
 
     Node() = default;
-    Node(std::nullptr_t)    : value_(nullptr)           {}
-    Node(std::string value) : value_(std::move(value))  {}
-    Node(int value)         : value_(value)             {}
-    Node(double value)      : value_(value)             {}
-    Node(bool value)        : value_(value)             {}
-    Node(Array array)       : value_(std::move(array))  {}
-    Node(Dict map)          : value_(std::move(map))    {}
+
+    template <typename T>
+    Node(T val){
+        value_ = std::move(val);
+    }
+    /*Так вроде работает,
+     * но я думал что использовать std::move(val) в отношении nullptr_t, int, double и bool не совсем корректно
+*/
+
+//    Node(T val){
+//        if(     std::holds_alternative<Array>(val)
+//                ||std::holds_alternative<Dict>(val)
+//                ||std::holds_alternative<std::string>(val)
+//           )
+//            value_ = std::move(val);
+//        else
+//            value_ = val;
+//    }
+
+//    Node(std::nullptr_t)    : value_(nullptr)           {}
+//    Node(std::string value) : value_(std::move(value))  {}
+//    Node(int value)         : value_(value)             {}
+//    Node(double value)      : value_(value)             {}
+//    Node(bool value)        : value_(value)             {}
+//    Node(Array array)       : value_(std::move(array))  {}
+//    Node(Dict map)          : value_(std::move(map))    {}
 
     const std::string&  AsString()  const;
     int                 AsInt()     const;

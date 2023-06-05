@@ -10,7 +10,7 @@
 
 
 
-const std::set<std::string> RequestHandler::GetBusesByStop(const std::string& stop_name) const  {
+const std::set<std::string> RequestHandler::GetBusesByStop(const std::string_view stop_name) const  {
     std::set<std::string> unique_buses;
     const transportCatalog::Stop* stop = catalogue_.FindStop(stop_name);
     for(auto bus : stop->buses){
@@ -29,7 +29,7 @@ bool RequestHandler::ExistingStop(const std::string_view stop_name) const
     return catalogue_.FindStop(stop_name);
 }
 
-const transportCatalog::RouteInfo RequestHandler::GetRoutStat(const std::string &route_number) const
+const transportCatalog::RouteInfo RequestHandler::GetRoutStat(const std::string_view route_number) const
 {
     transportCatalog::RouteInfo route_info{};
     const transportCatalog::Bus* bus = catalogue_.FindRoute(route_number);

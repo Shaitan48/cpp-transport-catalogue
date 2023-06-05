@@ -8,10 +8,11 @@
 
 #include <iostream>
 #include <sstream>
+#include <variant>
 
 class JsonReader {
 public:
-    JsonReader(std::istream& input)
+    explicit JsonReader(std::istream& input)
         : input_(json::Load(input))
     {}
 
@@ -29,8 +30,10 @@ public:
 
 private:
     json::Document input_;
-    json::Node dummy_ = nullptr;
+    static inline const json::Node dummy_ = nullptr;
 
     transportCatalog::Bus FillRoute(const json::Dict& request_map) const;
     transportCatalog::Stop FillStop(const json::Dict& request_map) const;
+
+    svg::Color ParceColor(const json::Node &node) const;;
 };

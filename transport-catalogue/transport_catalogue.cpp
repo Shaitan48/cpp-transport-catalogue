@@ -53,7 +53,7 @@ const Bus* TransportCatalogue::FindRoute(std::string_view route_number) const {
 }
 
 const Stop *TransportCatalogue::FindStop(std::string_view stop_name) const {
-    auto stop = std::find_if(stopname_to_stop_.begin(),stopname_to_stop_.end(),[stop_name](std::pair<std::string_view, Stop*> p){return stop_name==p.first;});
+    auto stop = stopname_to_stop_.find(stop_name);
     if(stop!=stopname_to_stop_.end())
         return stop->second;
     return nullptr;
