@@ -8,6 +8,7 @@ SOURCES += \
         geo.cpp \
         input_reader.cpp \
         json.cpp \
+        json_builder.cpp \
         json_reader.cpp \
         main.cpp \
         map_renderer.cpp \
@@ -21,6 +22,7 @@ HEADERS += \
     geo.h \
     input_reader.h \
     json.h \
+    json_builder.h \
     json_reader.h \
     map_renderer.h \
     request_handler.h \

@@ -25,36 +25,23 @@ class Node final : private std::variant<std::nullptr_t, std::string, int, double
 {
 public:
    /* Реализуйте Node, используя std::variant */
-    using Value = std::variant<
-                                  std::nullptr_t
-                                , std::string
-                                , int
-                                , double
-                                , bool
-                                , Array
-                                , Dict
-                            >;
+//    using Value = std::variant<
+//                                  std::nullptr_t
+//                                , std::string
+//                                , int
+//                                , double
+//                                , bool
+//                                , Array
+//                                , Dict
+//                            >;
 
+    using variant::variant;
+    using Value = variant;
 
-    Node() = default;
-
-    template <typename T>
-    Node(T val){
-        value_ = std::move(val);
-    }
-    /*Так вроде работает,
-     * но я думал что использовать std::move(val) в отношении nullptr_t, int, double и bool не совсем корректно
-*/
-
+//    Node() = default;
+//    template <typename T>
 //    Node(T val){
-//        if(     std::holds_alternative<Array>(val)
-//                ||std::holds_alternative<Dict>(val)
-//                ||std::holds_alternative<std::string>(val)
-//           )
-//            value_ = std::move(val);
-//        else
-//            value_ = val;
-//    }
+//        value_ = std::move(val);
 
 //    Node(std::nullptr_t)    : value_(nullptr)           {}
 //    Node(std::string value) : value_(std::move(value))  {}
@@ -81,6 +68,8 @@ public:
     bool IsMap()        const;
 
     const Value& GetValue() const;
+    Value& GetValue();
+
 
     bool operator==(const Node& rhs) const{
         return value_ == rhs.value_;
@@ -90,8 +79,12 @@ public:
     };
 
 private:
-    Value value_;
+    Value value_ = nullptr;
 };
+
+inline bool operator!=(const Node& lhs, const Node& rhs) {
+    return !(lhs == rhs);
+}
 
 class Document {
 public:
@@ -102,12 +95,18 @@ public:
         return root_;
     }
 
-    bool operator==(const Document& rhs) const {return root_ == rhs.root_;};
-    bool operator!=(const Document& rhs) const {return root_ != rhs.root_;};
 
 private:
     Node root_;
 };
+
+inline bool operator==(const Document& lhs, const Document& rhs) {
+    return lhs.GetRoot() == rhs.GetRoot();
+}
+
+inline bool operator!=(const Document& lhs, const Document& rhs) {
+    return !(lhs == rhs);
+}
 
 Document Load(std::istream& input);
 

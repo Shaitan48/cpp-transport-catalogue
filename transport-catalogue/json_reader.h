@@ -6,6 +6,8 @@
 #include "map_renderer.h"
 #include "request_handler.h"
 
+#include "json_builder.h"
+
 #include <iostream>
 #include <sstream>
 #include <variant>
@@ -35,5 +37,5 @@ private:
     transportCatalog::Bus FillRoute(const json::Dict& request_map) const;
     transportCatalog::Stop FillStop(const json::Dict& request_map) const;
 
-    svg::Color ParceColor(const json::Node &node) const;;
+    svg::Color ParceColor(const json::Node &node) const;
 };
