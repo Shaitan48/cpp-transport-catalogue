@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <iostream>
 #include <map>
@@ -21,28 +21,27 @@ public:
     using runtime_error::runtime_error;
 };
 
-class Node final : private std::variant<std::nullptr_t, std::string, int, double, bool, Array, Dict>
+class Node : private std::variant<std::nullptr_t, std::string, int, double, bool, Array, Dict>
 {
 public:
    /* Реализуйте Node, используя std::variant */
-//    using Value = std::variant<
-//                                  std::nullptr_t
-//                                , std::string
-//                                , int
-//                                , double
-//                                , bool
-//                                , Array
-//                                , Dict
-//                            >;
-
+    /*1 вариант*/
     using variant::variant;
     using Value = variant;
 
+    /*2 вариант*/
+ //   using Value = std::variant<std::nullptr_t, std::string, int, double, bool, Array, Dict>;
+
 //    Node() = default;
+
+    /*конструктор с шаблоном*/
 //    template <typename T>
 //    Node(T val){
 //        value_ = std::move(val);
+//    }
 
+    /*конструкторы типов*/
+//    конструкторы без шаблона
 //    Node(std::nullptr_t)    : value_(nullptr)           {}
 //    Node(std::string value) : value_(std::move(value))  {}
 //    Node(int value)         : value_(value)             {}
@@ -50,6 +49,13 @@ public:
 //    Node(bool value)        : value_(value)             {}
 //    Node(Array array)       : value_(std::move(array))  {}
 //    Node(Dict map)          : value_(std::move(map))    {}
+
+    /*не могу понять. почему всё руинится..
+
+
+
+
+*/
 
     const std::string&  AsString()  const;
     int                 AsInt()     const;
