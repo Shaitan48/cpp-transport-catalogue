@@ -6,7 +6,7 @@
 #include <vector>
 #include <variant>
 
-using namespace std::string_view_literals;
+//using namespace std::string_view_literals;
 
 namespace json {
 
@@ -35,27 +35,22 @@ public:
 //    Node() = default;
 
     /*конструктор с шаблоном*/
-//    template <typename T>
-//    Node(T val){
-//        value_ = std::move(val);
-//    }
+    template <typename T>
+    Node(T&& val)
+        :Value(val)
+    {
+    }
 
     /*конструкторы типов*/
 //    конструкторы без шаблона
-//    Node(std::nullptr_t)    : value_(nullptr)           {}
-//    Node(std::string value) : value_(std::move(value))  {}
-//    Node(int value)         : value_(value)             {}
-//    Node(double value)      : value_(value)             {}
-//    Node(bool value)        : value_(value)             {}
-//    Node(Array array)       : value_(std::move(array))  {}
-//    Node(Dict map)          : value_(std::move(map))    {}
+//    Node(std::nullptr_t)    : Value(nullptr)           {}
+//    Node(std::string&& value) : Value(std::move(value))  {}
+//    Node(int&& value)         : Value(value)             {}
+//    Node(double&& value)      : Value(value)             {}
+//    Node(bool&& value)        : Value(value)             {}
+//    Node(Array&& array)       : Value(std::move(array))  {}
+//    Node(Dict&& map)          : Value(std::move(map))    {}
 
-    /*не могу понять. почему всё руинится..
-
-
-
-
-*/
 
     const std::string&  AsString()  const;
     int                 AsInt()     const;
@@ -78,14 +73,14 @@ public:
 
 
     bool operator==(const Node& rhs) const{
-        return value_ == rhs.value_;
+        return GetValue() == rhs.GetValue();
     };
-    bool operator!=(const Node& rhs) const{
-        return !(value_ == rhs.value_);
-    };
+//    bool operator!=(const Node& rhs) const{
+//        return !(value_ == rhs.value_);
+//    };
 
-private:
-    Value value_ = nullptr;
+//private:
+//    Value value_ = nullptr;
 };
 
 inline bool operator!=(const Node& lhs, const Node& rhs) {

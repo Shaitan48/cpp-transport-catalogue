@@ -65,7 +65,7 @@ Builder& Builder::Value(Node::Value value) {
         throw std::logic_error("Error add Value");
 
     //std::visit([this](auto&& v) { nodes_stack_.emplace_back(std::make_unique<Node>(v)); }, value);
-    nodes_stack_.emplace_back(std::make_unique<Node>(GetNode(std::move(value))));
+    nodes_stack_.emplace_back(std::make_unique<Node>(std::move(value)));
 
     //AddNode(*nodes_stack_.back().release());
     AddNode(*nodes_stack_.back());
@@ -141,30 +141,5 @@ void Builder::AddNode(Node top_node) {
                     }
     }
 }
-
-Node Builder::GetNode(Node::Value value) {
-        if (std::holds_alternative<int>(value)) {
-            return Node(std::get<int>(value));
-        }
-        else if (std::holds_alternative<double>(value)) {
-            return Node(std::get<double>(value));
-        }
-        else if (std::holds_alternative<std::string>(value)) {
-            return Node(std::get<std::string>(value));
-        }
-        else if (std::holds_alternative<std::nullptr_t>(value)) {
-            return Node(std::get<std::nullptr_t>(value));
-        }
-        else if (std::holds_alternative<bool>(value)) {
-            return Node(std::get<bool>(value));
-        }
-        else if (std::holds_alternative<Dict>(value)) {
-            return Node(std::get<Dict>(value));
-        }
-        else if (std::holds_alternative<Array>(value)) {
-            return Node(std::get<Array>(value));
-        }
-        return {};
-    }
 
 }  // namespace json

@@ -32,8 +32,6 @@ public:
     ArrayContext StartArray();
     Builder& EndArray();
 
-    Node GetNode(Node::Value value);
-
     Node& Build();
 
 private:
