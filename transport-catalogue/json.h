@@ -35,8 +35,8 @@ public:
 //    Node() = default;
 
     /*конструктор с шаблоном*/
-    template <typename T>
-    Node(T&& val)
+    //template <typename T>
+    Node(Value&& val)
         :Value(val)
     {
     }
