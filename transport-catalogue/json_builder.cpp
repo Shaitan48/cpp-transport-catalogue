@@ -1,4 +1,4 @@
-﻿#include "json_builder.h"
+#include "json_builder.h"
 
 namespace json {
 

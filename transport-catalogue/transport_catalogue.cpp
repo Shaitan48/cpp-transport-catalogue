@@ -125,6 +125,15 @@ const std::map<std::string_view, const Bus *> TransportCatalogue::GetSortedAllBu
         return result;
 }
 
+const std::map<std::string_view, const Stop*> TransportCatalogue::GetSortedAllStops() const
+{
+    std::map<std::string_view, const Stop*> result;
+        for (const auto& stop : stopname_to_stop_) {
+            result.emplace(stop);
+        }
+        return result;
+}
+
 Stop *TransportCatalogue::FindStopUnconst(std::string_view stop_name) const
 {
     auto stop = std::find_if(stopname_to_stop_.begin(),stopname_to_stop_.end(),[stop_name](std::pair<std::string_view, Stop*> p){return stop_name==p.first;});

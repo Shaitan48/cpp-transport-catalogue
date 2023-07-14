@@ -21,14 +21,17 @@ public:
     const json::Node& GetBaseRequests() const;
     const json::Node& GetStatRequests() const;
     const json::Node& GetRenderSettings() const;
+    const json::Node& GetRoutingSettings() const;
 
     void FillCatalogue(transportCatalog::TransportCatalogue& catalogue);
     renderer::MapRenderer FillRenderSettings(const json::Dict& request_map) const;
+    transportCatalog::Router FillRoutingSettings(const json::Node& settings) const;
 
     void ProcessRequests(const json::Node& stat_requests, RequestHandler& rh, std::ostream &out = std::cout) const;
     const json::Node PrintRoute(const json::Dict& request_map, RequestHandler& rh) const;
     const json::Node PrintStop(const json::Dict& request_map, RequestHandler& rh) const;
     const json::Node PrintMap(const json::Dict& request_map, RequestHandler& rh) const;
+    const json::Node PrintRouting(const json::Dict& request_map, RequestHandler& rh) const;
 
 private:
     json::Document input_;

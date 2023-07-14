@@ -60,6 +60,7 @@ public:
     const std::optional<RouteInfo> RouteInformation(const std::string& route_number) const;
     std::optional<std::set<Bus *> > Stopformation(std::string_view stop_name) const;
     const std::map<std::string_view, const Bus*> GetSortedAllBuses() const;
+    const std::map<std::string_view, const Stop*> GetSortedAllStops() const;
 
 private:
     std::deque<Bus> all_buses_;

@@ -39,7 +39,7 @@ struct Stop {
 struct RouteInfo {
     size_t stops_count;
     size_t unique_stops_count;
-    int route_length;
+    double route_length;
     double  curvature ;
 };
 

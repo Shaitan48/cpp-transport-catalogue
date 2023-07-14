@@ -19,6 +19,16 @@ const std::set<std::string> RequestHandler::GetBusesByStop(const std::string_vie
     return unique_buses;
 }
 
+const std::optional<graph::Router<double>::RouteInfo> RequestHandler::GetOptimalRoute(const std::string_view stop_from, const std::string_view stop_to) const
+{
+    return router_.FindRoute(stop_from, stop_to);
+}
+
+const graph::DirectedWeightedGraph<double> &RequestHandler::GetRouterGraph() const
+{
+    return router_.GetGraph();
+}
+
 bool RequestHandler::ExistingBus(const std::string_view bus_number) const
 {
     return catalogue_.FindRoute(bus_number);

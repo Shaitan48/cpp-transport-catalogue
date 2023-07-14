@@ -40,6 +40,7 @@ private:
 //#include "json_reader.h"
 #include "transport_catalogue.h"
 #include "map_renderer.h"
+#include "transport_router.h"
 
 class RequestHandler {
 public:
@@ -50,14 +51,19 @@ public:
 //        ProcessRequests();
 //    }
 
-    explicit RequestHandler(const renderer::MapRenderer& renderer, const transportCatalog::TransportCatalogue& catalogue)
+    explicit RequestHandler(const renderer::MapRenderer& renderer
+                            , const transportCatalog::TransportCatalogue& catalogue
+                            , const transportCatalog::Router& router)
             : catalogue_(catalogue)
             , renderer_(renderer)
+            , router_(router)
         {
         }
 
     const transportCatalog::RouteInfo GetRoutStat(const std::string_view route_number) const;
     const std::set<std::string> GetBusesByStop(const std::string_view stop_name) const;
+    const std::optional<graph::Router<double>::RouteInfo> GetOptimalRoute(const std::string_view stop_from, const std::string_view stop_to) const;
+    const graph::DirectedWeightedGraph<double>& GetRouterGraph() const;
 
     bool ExistingBus(const std::string_view bus_number) const;
     bool ExistingStop(const std::string_view stop_name) const;
@@ -73,4 +79,5 @@ private:
     //const JsonReader& requests_;
     const transportCatalog::TransportCatalogue& catalogue_;
     const renderer::MapRenderer& renderer_;
+    const transportCatalog::Router& router_;
 };
