@@ -1,93 +1,57 @@
-/*
- * Примерная структура программы:
- *
- * Считать JSON из stdin
- * Построить на его основе JSON базу данных транспортного справочника
- * Выполнить запросы к справочнику, находящиеся в массиве "stat_requests", построив JSON-массив
- * с ответами.
- * Вывести в stdout ответы в виде JSON
- */
-
-#include "json_reader.h"
+#include "transport_catalogue.h"
 #include "request_handler.h"
+#include "json_reader.h"
+#include "json.h"
+#include "geo.h"
+#include "map_renderer.h"
+#include "transport_router.h"
+#include "serialization.h"
 
-#include <iostream>
+#include <transport_catalogue.pb.h>
+
 #include <fstream>
-
-int main() {
-    //setlocale(LC_ALL, "Russian");
-
-    //std::ifstream file("input.txt");
-
-    //std::ofstream file1("output.txt");
-
-    transportCatalog::TransportCatalogue catalogue;
-
-    JsonReader requests(std::cin);
-    //JsonReader requests(file);
-    requests.FillCatalogue(catalogue);
-
-    const auto& stat_requests = requests.GetStatRequests();
-    const auto& render_settings = requests.GetRenderSettings().AsMap();
-    const auto& renderer = requests.FillRenderSettings(render_settings);
-    const auto& routing_settings = requests.FillRoutingSettings(requests.GetRoutingSettings());
-    const transportCatalog::Router router = { routing_settings, catalogue };
-
-    RequestHandler rh(renderer, catalogue, router);
-    //rh.ProcessRequests(stat_requests);
-    //rh.RenderMap().Render(std::cout);
-
-    //requests.ProcessRequests(stat_requests, rh, file1);
-    requests.ProcessRequests(stat_requests, rh);
-    //file1.close();
-
-}
-/*
-#include "json_builder.h"
 #include <iostream>
+#include <string>
+#include <string_view>
+#include <utility>
 
+using namespace std::literals;
 
-using namespace std;
-
-int main() {
-    json::Print(
-        json::Document{
-            //json::Builder{}.Value("just a string"s).Build()
-            //json::Builder{}.Value("s"s).Key("1"s).Build()
-            //json::Builder{}.Value("s"s).StartDict().Build()
-            json::Builder{}.StartDict()
-                    .Key("1"s).Value("value1"s)
-                    //.Key("2"s).Value("value2"s)
-                    //.Key("3"s).Value("value3"s)
-                .EndDict().Build()
-        },
-        cout
-    );
-    cout << endl;
-
-    json::Print(
-        json::Document{
-                    // Форматирование не имеет формального значения:
-                    // это просто цепочка вызовов методов
-            json::Builder{}
-            .StartDict()
-                .Key("key1"s).Value(123)
-                .Key("key2"s).Value("value2"s)
-                .Key("key3"s).StartArray()
-                    .Value(456)
-                    .StartDict().EndDict()
-                    .StartDict()
-                        .Key(""s).Value(nullptr)
-                    .EndDict()
-                    .Value(""s)
-                .EndArray()
-            .EndDict()
-            .Build()
-        },
-        cout
-    );
+void PrintUsage(std::ostream& stream = std::cerr) {
+    stream << "Usage: transport_catalogue [make_base|process_requests]\n"sv;
 }
 
+int main(int argc, char* argv[]) {
+    if (argc != 2) {
+        PrintUsage();
+        return 1;
+    }
 
+    const std::string_view mode(argv[1]);
 
-*/
+    if (mode == "make_base"sv) {
+        JsonReader input_json(json::Load(std::cin));
+        transportCatalogue::Catalogue catalogue;
+        input_json.FillCatalogue(catalogue);
+        renderer::MapRenderer renderer(input_json.GetRenderSettings());
+        transportCatalogue::Router router(input_json.GetRoutingSettings(), catalogue);
+        std::ofstream fout(input_json.GetSerializationSettings().AsDict().at("file"s).AsString(), std::ios::binary);
+        if (fout.is_open()) {
+            Serialize(catalogue, renderer, router, fout);
+        }
+    }
+    else if (mode == "process_requests"sv) {
+        JsonReader input_json(json::Load(std::cin));
+        std::ifstream db_file(input_json.GetSerializationSettings().AsDict().at("file"s).AsString(), std::ios::binary);
+        if (db_file) {
+            auto [tcat, renderer, router, graph, stop_ids] = Deserialize(db_file);
+            router.SetGraph(std::move(graph), std::move(stop_ids));
+            RequestHandler handler(tcat, router, renderer);
+            handler.JsonStatRequests(input_json.GetStatRequest(), std::cout);
+        }
+    }
+    else {
+        PrintUsage();
+        return 1;
+    }
+}
