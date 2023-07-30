@@ -62,8 +62,20 @@ const std::map<std::string_view, Bus*>& Catalogue::GetSortedAllBuses() const {
     return buses_;
 }
 
+<<<<<<< HEAD
 const std::map<std::string_view, Stop*>& Catalogue::GetSortedAllStops() const {
     return stops_;
 }
 
 } // namespace transport
+=======
+Stop *TransportCatalogue::FindStopUnconst(std::string_view stop_name) const
+{
+    auto stop = std::find_if(stopname_to_stop_.begin(),stopname_to_stop_.end(),[stop_name](std::pair<std::string_view, Stop*> p){return stop_name==p.first;});
+    if(stop!=stopname_to_stop_.end())
+        return stop->second;
+    return nullptr;
+}
+
+}//namespace transportCatalog
+>>>>>>> parent of abd3691 (my favorite progaramm)

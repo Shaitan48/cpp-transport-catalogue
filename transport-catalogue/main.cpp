@@ -10,6 +10,7 @@
 #include <transport_catalogue.pb.h>
 
 #include <fstream>
+<<<<<<< HEAD
 #include <iostream>
 #include <string>
 #include <string_view>
@@ -55,3 +56,31 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 }
+=======
+
+int main() {
+    //setlocale(LC_ALL, "Russian");
+    //std::ifstream file("input.txt");
+
+    //std::ofstream file1("output.txt");
+
+    transportCatalog::TransportCatalogue catalogue;
+
+    JsonReader requests(std::cin);
+    //JsonReader requests(file);
+    requests.FillCatalogue(catalogue);
+
+    const auto& stat_requests = requests.GetStatRequests();
+    const auto& render_settings = requests.GetRenderSettings().AsMap();
+    const auto& renderer = requests.FillRenderSettings(render_settings);
+
+    RequestHandler rh(renderer, catalogue);
+    //rh.ProcessRequests(stat_requests);
+    //rh.RenderMap().Render(std::cout);
+
+    //requests.ProcessRequests(stat_requests, rh, file1);
+    requests.ProcessRequests(stat_requests, rh);
+
+}
+
+>>>>>>> parent of abd3691 (my favorite progaramm)

@@ -19,12 +19,23 @@ public:
     const json::Node& GetStatRequest() const;
 
     const json::Node& GetRenderSettings() const;
+<<<<<<< HEAD
 
     const json::Node& GetRoutingSettings() const;
 
     const json::Node& GetSerializationSettings() const;
 
     void FillCatalogue(transportCatalogue::Catalogue& catalogue) const;
+=======
+
+    void FillCatalogue(transportCatalog::TransportCatalogue& catalogue);
+    renderer::MapRenderer FillRenderSettings(const json::Dict& request_map) const;
+
+    void ProcessRequests(const json::Node& stat_requests, RequestHandler& rh, std::ostream &out = std::cout) const;
+    const json::Node PrintRoute(const json::Dict& request_map, RequestHandler& rh) const;
+    const json::Node PrintStop(const json::Dict& request_map, RequestHandler& rh) const;
+    const json::Node PrintMap(const json::Dict& request_map, RequestHandler& rh) const;
+>>>>>>> parent of abd3691 (my favorite progaramm)
 
 private:
     json::Document input_;

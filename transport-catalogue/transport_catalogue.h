@@ -16,6 +16,7 @@ using namespace domain;
 
 class Catalogue {
 public:
+<<<<<<< HEAD
     void AddStop(const std::string& name, const geo::Coordinates& coordinates);
     void AddBus(const std::string& num, const std::vector<Stop*>& stops, bool is_circle);
 
@@ -33,6 +34,20 @@ public:
 
     const std::map <std::string_view, Bus*>& GetSortedAllBuses() const;
     const std::map <std::string_view, Stop*>& GetSortedAllStops() const;
+=======
+    void AddRoute(std::string_view route_number, const std::vector<std::string>& route_stops, bool is_round);
+    //void AddRoute(Bus* bus);
+    void AddStop(std::string_view stop_name, geo::Coordinates& coordinates);
+    //void AddStop(Stop* stop);
+    void SetDistance(const Stop *ssourse, const Stop *destination, double dist);
+    int GetDistance(const Stop *sourse, const Stop *destination) const;
+    const Bus* FindRoute(std::string_view route_number) const;
+    const Stop* FindStop(std::string_view stop_name) const;
+    size_t UniqueStopsCount(std::string_view route_number) const ;
+    const std::optional<RouteInfo> RouteInformation(const std::string& route_number) const;
+    std::optional<std::set<Bus *> > Stopformation(std::string_view stop_name) const;
+    const std::map<std::string_view, const Bus*> GetSortedAllBuses() const;
+>>>>>>> parent of abd3691 (my favorite progaramm)
 
 private:
     std::deque<Stop> storage_stops_;
