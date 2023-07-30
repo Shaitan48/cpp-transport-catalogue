@@ -56,10 +56,24 @@ struct Stop {
         , coordinates(coordinates) {}
 
     int GetDistance(Stop* to){
-        if (stop_distances.count(to->name)) return stop_distances.at(to->name);
-        else if (to->stop_distances.count(this->name)) return to->stop_distances.at(this->name);
-        else return 0;
+        auto surseElem = stop_distances.find(to->name);
+        if (surseElem != stop_distances.end())
+            return surseElem->second;
+        else {
+            auto destinationElem = to->stop_distances.find(name);
+            if (destinationElem != to->stop_distances.end())
+                return destinationElem->second;
+        }
+        return 0;
     }
+
+    std::set<std::string> GetBuses(){
+        std::set<std::string> result;
+        for(auto bus : buses){
+            result.emplace(bus->number);
+        }
+        return result;
+    };
 };
 
 

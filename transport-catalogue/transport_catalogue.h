@@ -41,9 +41,13 @@ public:
     //std::optional<std::set<Bus *> > Stopformation(std::string_view stop_name) const;
     const std::map<std::string_view, const Bus*> GetSortedAllBuses() const;
     const std::map<std::string_view, const Stop*> GetSortedAllStops() const;
+//    const std::unordered_map<std::string_view, const Bus *> GetAllBuses() const;
+//    const std::unordered_map<std::string_view, const Stop *> GetAllStops() const;
+//    std::map<std::string_view, Bus*> GetAllBuses() const;
+//    std::map<std::string_view, Stop*> GetAllStops() const;
 
     void CalcRoutesInfo();
-
+    mutable int counterGetDistance = 0;
 private:
     std::deque<Bus> all_buses_;
     std::deque<Stop> all_stops_;
@@ -72,6 +76,7 @@ private:
     };
 
     //std::unordered_map<std::pair<const Stop*,const Stop*>, double,StopPairHasher> distance_map;
+
 };
 
 }//namespace transportCatalog

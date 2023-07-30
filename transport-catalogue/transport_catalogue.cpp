@@ -54,12 +54,16 @@ int TransportCatalogue::GetDistance(const Stop *sourse, const Stop *destination)
 //        return distance_map.at(std::make_pair(destination, sourse));
 //    else
 //        return 0;
+    this->counterGetDistance++;
 
-    if (sourse->stop_distances.count(destination->name) > 0)
-           return sourse->stop_distances.at(destination->name);
-    else     if (destination->stop_distances.count(sourse->name) > 0)
-           return destination->stop_distances.at(sourse->name);
-    else
+    auto surseElem = sourse->stop_distances.find(destination->name);
+    if (surseElem != sourse->stop_distances.end())
+           return surseElem->second;
+    else {
+           auto destinationElem = destination->stop_distances.find(sourse->name);
+           if (destinationElem != destination->stop_distances.end())
+               return destinationElem->second;
+    }
            return 0;
 }
 
@@ -139,6 +143,42 @@ const std::map<std::string_view, const Stop*> TransportCatalogue::GetSortedAllSt
         }
         return result;
 }
+
+//const std::unordered_map<std::string_view, const Bus *> TransportCatalogue::GetAllBuses() const
+//{
+//        std::unordered_map<std::string_view, const Bus*> result;
+//        for (const auto& stop : busname_to_bus_) {
+//            result.emplace(stop);
+//        }
+//        return result;
+//}
+
+//const std::unordered_map<std::string_view, const Stop *> TransportCatalogue::GetAllStops() const
+//{
+//        std::unordered_map<std::string_view, const Stop*> result;
+//        for (const auto& stop : stopname_to_stop_) {
+//            result.emplace(stop);
+//        }
+//        return result;
+//}
+
+//std::map<std::string_view, Bus *> TransportCatalogue::GetAllBuses() const
+//{
+//        std::map<std::string_view, Bus*> result;
+//        for (const auto& bus : busname_to_bus_) {
+//            result.emplace(bus);
+//        }
+//        return result;
+//}
+
+//std::map<std::string_view, Stop *> TransportCatalogue::GetAllStops() const
+//{
+//        std::map<std::string_view, Stop*> result;
+//        for (const auto& stop : stopname_to_stop_) {
+//            result.emplace(stop);
+//        }
+//        return result;
+//}
 
 
 void TransportCatalogue::CalcRoutesInfo()

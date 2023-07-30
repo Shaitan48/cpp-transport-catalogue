@@ -2,14 +2,14 @@
 
 using namespace std;
 
-void Serialize(const transportCatalog::TransportCatalogue &tcat,
+void Serialize(const transportCatalog::TransportCatalogue &catalog,
                const renderer::MapRenderer& renderer, const transportCatalog::Router &router,
                std::ostream& output) {
     serialize::TransportCatalogue database;
-    for (const auto& [name, s] : tcat.GetSortedAllStops()) {
+    for (const auto& [name, s] : catalog.GetSortedAllStops()) {
         *database.add_stop() = Serialize(s);
     }
-    for (const auto& [name, b] : tcat.GetSortedAllBuses()) {
+    for (const auto& [name, b] : catalog.GetSortedAllBuses()) {
         *database.add_bus() = Serialize(b);
     }
     *database.mutable_render_settings() = GetRenderSettingSerialize(renderer.GetRenderSettings());
@@ -139,37 +139,33 @@ serialize::Router Serialize(const transportCatalog::Router &router) {
     return result;
 }
 
-void SetStopsDistances(transportCatalog::TransportCatalogue& tcat, const serialize::TransportCatalogue& database) {
+void SetStopsDistances(transportCatalog::TransportCatalogue& catalog, const serialize::TransportCatalogue& database) {
     for (size_t i = 0; i < database.stop_size(); ++i) {
         const serialize::Stop& stop_i = database.stop(i);
-        transportCatalog::Stop* from = tcat.FindStop(stop_i.name());
+        transportCatalog::Stop* from = catalog.FindStop(stop_i.name());
         for (size_t j = 0; j < stop_i.stop__size(); ++j) {
-            tcat.SetDistance(from, tcat.FindStop(stop_i.stop_(j)), stop_i.distance(j));
+            catalog.SetDistance(from, catalog.FindStop(stop_i.stop_(j)), stop_i.distance(j));
         }
     }
 }
 
-void AddStopFromDB(transportCatalog::TransportCatalogue& tcat, const serialize::TransportCatalogue& database) {
+void AddStopFromDB(transportCatalog::TransportCatalogue& catalog, const serialize::TransportCatalogue& database) {
     for (size_t i = 0; i < database.stop_size(); ++i) {
         const serialize::Stop& stop_i = database.stop(i);
         geo::Coordinates pos = {stop_i.coordinate(0), stop_i.coordinate(1)};
-        tcat.AddStop(stop_i.name(), pos);
+        catalog.AddStop(stop_i.name(), pos);
     }
-    SetStopsDistances(tcat, database);
+    SetStopsDistances(catalog, database);
 }
 
-void AddBusFromDB(transportCatalog::TransportCatalogue& tcat, const serialize::TransportCatalogue& database) {
+void AddBusFromDB(transportCatalog::TransportCatalogue& catalog, const serialize::TransportCatalogue& database) {
     for (size_t i = 0; i < database.bus_size(); ++i) {
         const serialize::Bus& bus_i = database.bus(i);
         std::vector<transportCatalog::Stop*> stops(bus_i.stop_size());
         for (size_t j = 0; j < stops.size(); ++j) {
-            stops[j] = tcat.FindStop(bus_i.stop(j));
+            stops[j] = catalog.FindStop(bus_i.stop(j));
         }
-        tcat.AddRoute(bus_i.number(), stops, bus_i.is_round());
-        //        if (!bus_i.final_stop().empty()) {
-        //            transportCatalog::Bus* bus = tcat.FindRoute(bus_i.number());
-        //            bus->final_stop = tcat.FindStop(bus_i.final_stop());
-        //        }
+        catalog.AddRoute(bus_i.number(), stops, bus_i.is_round());
     }
 }
 

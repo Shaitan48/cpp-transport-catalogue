@@ -45,11 +45,16 @@ json::Node RequestHandler::FindStopRequestProcessing(const json::Dict &request_m
     const std::string& name = request_map.at("name").AsString();
     if (const transportCatalog::Stop* stop = catalogue_.FindStop(name)) {
         json::Array buses_array;
-        const auto& buses_on_stop = catalogue_.FindStop(stop->name)->buses;
-        buses_array.reserve(buses_on_stop.size());
-        for (auto& item : buses_on_stop) {
-            buses_array.push_back(item->number);
+
+//        const auto& buses_on_stop = catalogue_.FindStop(stop->name)->buses;
+//        buses_array.reserve(buses_on_stop.size());
+//        for (auto& item : buses_on_stop) {
+//            buses_array.push_back(item->number);
+//        }
+        for (auto& bus : catalogue_.FindStop(stop->name)->GetBuses()) {
+            buses_array.push_back(bus);
         }
+
         return json::Node(json::Dict{
                                      {{"buses"},{std::move(buses_array)}},
             {{"request_id"},{id}}

@@ -29,30 +29,30 @@ const graph::DirectedWeightedGraph<double>& transportCatalog::Router::BuildGraph
         all_buses.end(),
         [&stops_graph, this, &catalogue](const auto& item)
         {
-            const auto& bus_info = item.second;
-            const auto& stops = bus_info->stops;
+            const auto& bus_ptr = item.second;
+            const std::vector<Stop*>& stops = bus_ptr->stops;
             size_t stops_count = stops.size();
-            for (size_t i = 0; i < stops_count; ++i)
-            {
-                for (size_t j = i + 1; j < stops_count; ++j)
-                {
+            for (size_t i = 0; i < stops_count; ++i) {
+                for (size_t j = i + 1; j < stops_count; ++j) {
+                    
                     const Stop* stop_from = stops[i];
                     const Stop* stop_to = stops[j];
                     int dist_sum = 0;
-                    for (size_t k = i + 1; k <= j; ++k)
-                    {
-                        dist_sum += catalogue.GetDistance(stops[k - 1], stops[k]);
+                    for (size_t k = i + 1; k <= j; ++k) {
+                        dist_sum += stops[k - 1]->GetDistance(stops[k]);
+                        //catalogue.counterGetDistance++;
                     }
-                    stops_graph.AddEdge({ bus_info->number,
+                    stops_graph.AddEdge({ bus_ptr->number,
                                          j - i,
                                          stop_ids_.at(stop_from->name) + 1,
                                          stop_ids_.at(stop_to->name),
-                                         static_cast<double>(dist_sum) / (bus_velocity_ * (100.0 / 6.0))});
-
+                                         static_cast<double>(dist_sum) / (bus_velocity_ * (100.0 / 6.0)) });
+                    if (!bus_ptr->is_round &&  j == stops_count / 2 )
+                        break;
                 }
             }
-        }
-        );
+        });
+
 
     graph_ = std::move(stops_graph);
     router_ = std::make_unique<graph::Router<double>>(graph_);

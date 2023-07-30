@@ -4,6 +4,7 @@
 #include "transport_catalogue.h"
 #include "json.h"
 #include "graph.h"
+#include <unordered_map>
 #include <memory>
 
 namespace transportCatalog {

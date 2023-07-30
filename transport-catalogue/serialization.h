@@ -10,7 +10,7 @@
 
 #include <transport_catalogue.pb.h>
 
-void Serialize(const transportCatalog::TransportCatalogue& tcat,
+void Serialize(const transportCatalog::TransportCatalogue& catalog,
                const renderer::MapRenderer& renderer,
                const transportCatalog::Router& router,
                std::ostream& output);
