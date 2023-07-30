@@ -20,7 +20,13 @@ const json::Node &JsonReader::GetRenderSettings() const
 const json::Node &JsonReader::GetRoutingSettings() const
 {
     if (!input_.GetRoot().AsMap().count("routing_settings")) return dummy_;
-        return input_.GetRoot().AsMap().at("routing_settings");
+    return input_.GetRoot().AsMap().at("routing_settings");
+}
+
+const json::Node &JsonReader::GetSerializationSettings() const
+{
+    if (!input_.GetRoot().AsMap().count("serialization_settings")) return dummy_;
+    return input_.GetRoot().AsMap().at("serialization_settings");
 }
 
 void JsonReader::FillCatalogue(transportCatalog::TransportCatalogue& catalogue) {
@@ -45,7 +51,7 @@ void JsonReader::FillCatalogue(transportCatalog::TransportCatalogue& catalogue) 
         {
             std::string_view stop_name_source  = request_stops_map.at("name").AsString();
             auto stop_distances = request_stops_map.at("road_distances").AsMap();
-            const transportCatalog::Stop* souce = catalogue.FindStop(stop_name_source);
+            transportCatalog::Stop* souce = catalogue.FindStop(stop_name_source);
             for(auto& [stop_name_dest, dist] : stop_distances){
                 const transportCatalog::Stop* destination = catalogue.FindStop(stop_name_dest);
                 catalogue.SetDistance(souce,destination,dist.AsDouble());
@@ -75,6 +81,10 @@ void JsonReader::FillCatalogue(transportCatalog::TransportCatalogue& catalogue) 
             catalogue.AddRoute(route_number, route_stops,is_round_);
         }
     }
+
+    //catalogue.CalcRoutesInfo();
+
+
 }
 
 renderer::MapRenderer JsonReader::FillRenderSettings(const json::Dict &request_map) const
@@ -189,10 +199,16 @@ const json::Node JsonReader::PrintRoute(const json::Dict &request_map, RequestHa
         builder.Key("error_message").Value("not found");
     }
     else {
-        builder.Key("curvature").Value(rh.GetRoutStat(route_number).curvature);
-        builder.Key("route_length").Value(rh.GetRoutStat(route_number).route_length);
-        builder.Key("stop_count").Value(static_cast<int>(rh.GetRoutStat(route_number).stops_count));
-        builder.Key("unique_stop_count").Value(static_cast<int>(rh.GetRoutStat(route_number).unique_stops_count));
+        try {
+            auto stat = rh.GetRoutStat(route_number);
+            builder.Key("curvature").Value(stat.curvature);
+            builder.Key("route_length").Value(stat.route_length);
+            builder.Key("stop_count").Value(static_cast<int>(stat.stops_count));
+            builder.Key("unique_stop_count").Value(static_cast<int>(stat.unique_stops_count));
+        } catch (...) {
+            builder.Key("error_message").Value("not found");
+        }
+
     }
 
     builder.EndDict();
@@ -268,6 +284,15 @@ const json::Node JsonReader::PrintRouting(const json::Dict &request_map, Request
        const int id = request_map.at("id").AsInt();
        const std::string_view stop_from = request_map.at("from").AsString();
        const std::string_view stop_to = request_map.at("to").AsString();
+
+       if (!(rh.ExistingStop(stop_from) and rh.ExistingStop(stop_to))) {
+        auto builder = json::Builder();
+        builder.StartDict()
+            .Key("error_message").Value("not found")
+                     .EndDict();
+        return builder.Build();
+       }
+
        const auto& routing = rh.GetOptimalRoute(stop_from, stop_to);
 
        if (!routing) {

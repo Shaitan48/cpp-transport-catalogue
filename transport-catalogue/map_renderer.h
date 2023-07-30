@@ -5,6 +5,7 @@
  * Пока можете оставить файл пустым.
  */
 
+#include "json.h"
 #include "svg.h"
 #include "geo.h"
 #include "domain.h"
@@ -103,12 +104,20 @@ private:
     double zoom_coeff_ = 0;
 };
 
+json::Node ConvertToNode(const svg::Point& p);
+
+json::Node ConvertToNode(const svg::Color& c);
+json::Node ConvertToNode(const std::vector<svg::Color>& cv);
+
 
 class MapRenderer {
 public:
+    MapRenderer() = default;
     MapRenderer(const RenderSettings& render_settings)
         : render_settings_(render_settings)
     {}
+
+    MapRenderer(const json::Node& render_settings);
 
     std::vector<svg::Polyline> GetRouteLines(const std::map<std::string_view, const transportCatalog::Bus*>& buses, const SphereProjector& sp) const;
     std::vector<svg::Text> GetBusLabel(const std::map<std::string_view, const transportCatalog::Bus*>& buses, const SphereProjector& sp) const;
@@ -117,8 +126,10 @@ public:
 
     svg::Document GetSVG(const std::map<std::string_view, const transportCatalog::Bus*>& buses) const;
 
+    json::Node GetRenderSettings() const;
+
 private:
-    const RenderSettings render_settings_;
+    RenderSettings render_settings_;
 };
 
 }//namespace renderer

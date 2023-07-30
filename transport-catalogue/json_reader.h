@@ -10,18 +10,23 @@
 
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <variant>
 
 class JsonReader {
 public:
-    explicit JsonReader(std::istream& input)
-        : input_(json::Load(input))
+//    explicit JsonReader(std::istream& input)
+//        : input_(json::Load(input))
+//    {}
+    JsonReader(json::Document input)
+        : input_(input)
     {}
 
     const json::Node& GetBaseRequests() const;
     const json::Node& GetStatRequests() const;
     const json::Node& GetRenderSettings() const;
     const json::Node& GetRoutingSettings() const;
+    const json::Node& GetSerializationSettings() const;
 
     void FillCatalogue(transportCatalog::TransportCatalogue& catalogue);
     renderer::MapRenderer FillRenderSettings(const json::Dict& request_map) const;

@@ -36,11 +36,19 @@ private:
 
 #pragma once
 
-#include "json.h"
-//#include "json_reader.h"
 #include "transport_catalogue.h"
-#include "map_renderer.h"
 #include "transport_router.h"
+#include "domain.h"
+#include "json.h"
+#include "map_renderer.h"
+#include "json_builder.h"
+
+#include <utility>
+#include <iostream>
+#include <string>
+#include <string_view>
+#include <iostream>
+#include <sstream>
 
 class RequestHandler {
 public:
@@ -52,12 +60,13 @@ public:
 //    }
 
     explicit RequestHandler(const renderer::MapRenderer& renderer
-                            , const transportCatalog::TransportCatalogue& catalogue
+                            , transportCatalog::TransportCatalogue& catalogue
                             , const transportCatalog::Router& router)
             : catalogue_(catalogue)
             , renderer_(renderer)
             , router_(router)
         {
+
         }
 
     const transportCatalog::RouteInfo GetRoutStat(const std::string_view route_number) const;
@@ -70,14 +79,20 @@ public:
 
     //const json::Node PrintStop(const json::Dict& request_map) const;
     //const json::Node PrintRoute(const json::Dict& request_map) const;
+    json::Node FindStopRequestProcessing(const json::Dict& request_map);
+    json::Node FindBusRequestProcessing(const json::Dict& request_map);
+    json::Node BuildMapRequestProcessing(const json::Dict& request_map);
+    json::Node BuildRouteRequestProcessing(const json::Dict& request_map);
 
-    //void ProcessRequests(const json::Node &request_map) const;
+    void ProcessRequests(const json::Node &request , std::ostream& output);
+
+    //void CalsBusStats(const std::string_view route_number);
 
     svg::Document RenderMap() const;
 
 private:
     //const JsonReader& requests_;
-    const transportCatalog::TransportCatalogue& catalogue_;
+    transportCatalog::TransportCatalogue& catalogue_;
     const renderer::MapRenderer& renderer_;
     const transportCatalog::Router& router_;
 };
