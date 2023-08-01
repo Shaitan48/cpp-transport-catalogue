@@ -24,9 +24,16 @@ public:
 
     const json::Node& GetBaseRequests() const;
     const json::Node& GetStatRequests() const;
-    const json::Node& GetRenderSettings() const;
-    const json::Node& GetRoutingSettings() const;
+//    const json::Node& GetRenderSettings() const;
+//    const json::Node& GetRoutingSettings() const;
+//    const json::Node& GetSerializationSettings() const;
+    renderer::RenderSettings GetRenderSettings() const;
+    transportCatalog::routerSettings GetRoutingSettings() const;
     const json::Node& GetSerializationSettings() const;
+
+    json::Node ConvertToNode(const svg::Point& p);
+    json::Node ConvertToNode(const svg::Color& c);
+    json::Node ConvertToNode(const std::vector<svg::Color>& cv);
 
     void FillCatalogue(transportCatalog::TransportCatalogue& catalogue);
     renderer::MapRenderer FillRenderSettings(const json::Dict& request_map) const;

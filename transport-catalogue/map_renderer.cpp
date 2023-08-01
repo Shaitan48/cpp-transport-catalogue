@@ -216,51 +216,25 @@ svg::Document MapRenderer::GetSVG(const std::map<std::string_view, const transpo
     return result;
 }
 
-json::Node MapRenderer::GetRenderSettings() const
+renderer::RenderSettings MapRenderer::GetRenderSettings() const
 {
-    return json::Node(json::Dict{
-                                 {{"width"},{render_settings_.width}},
-                                 {{"height"},{render_settings_.height}},
-                                 {{"padding"},{render_settings_.padding}},
-                                 {{"stop_radius"},{render_settings_.stop_radius}},
-                                 {{"line_width"},{render_settings_.line_width}},
-                                 {{"bus_label_font_size"},{render_settings_.bus_label_font_size}},
-                                 {{"bus_label_offset"},ConvertToNode(render_settings_.bus_label_offset)},
-                                 {{"stop_label_font_size"},{render_settings_.stop_label_font_size}},
-                                 {{"stop_label_offset"},ConvertToNode(render_settings_.stop_label_offset)},
-                                 {{"underlayer_color"},ConvertToNode(render_settings_.underlayer_color)},
-                                 {{"underlayer_width"},{render_settings_.underlayer_width}},
-                                 {{"color_palette"},ConvertToNode(render_settings_.color_palette)},
-                                 });
+    renderer::RenderSettings sett;
+    sett.width = render_settings_.width;
+    sett.height = render_settings_.height;
+    sett.padding = render_settings_.padding;
+    sett.stop_radius = render_settings_.stop_radius;
+    sett.line_width = render_settings_.line_width;
+    sett.bus_label_font_size = render_settings_.bus_label_font_size;
+    sett.bus_label_offset  =  render_settings_.bus_label_offset;
+    sett.stop_label_font_size = render_settings_.stop_label_font_size;
+    sett.stop_label_offset = render_settings_.stop_label_offset;
+    sett.underlayer_color = render_settings_.underlayer_color;
+    sett.underlayer_width = render_settings_.underlayer_width;
+    sett.color_palette = render_settings_.color_palette;
+
+    return sett;
 }
 
-json::Node ConvertToNode(const svg::Point &p) {
-    return json::Node(json::Array{ {p.x}, {p.y} });
-}
 
-json::Node ConvertToNode(const svg::Color &c) {
-    if (std::holds_alternative<std::string>(c)) {
-        return json::Node(std::get<std::string>(c));
-    }
-    else if (std::holds_alternative<svg::Rgb>(c)) {
-        const svg::Rgb& rgb = std::get<svg::Rgb>(c);
-        return json::Node(json::Array{ {rgb.red}, {rgb.green}, {rgb.blue} });
-    }
-    else if (std::holds_alternative<svg::Rgba>(c)) {
-        const svg::Rgba& rgba = std::get<svg::Rgba>(c);
-        return json::Node(json::Array{ {rgba.red}, {rgba.green}, {rgba.blue}, {rgba.opacity} });
-    }
-    else
-        return json::Node("none");
-}
-
-json::Node ConvertToNode(const std::vector<svg::Color> &cv) {
-    json::Array result;
-    result.reserve(cv.size());
-    for (const auto& c : cv) {
-        result.emplace_back(ConvertToNode(c));
-    }
-    return json::Node(std::move(result));
-}
 
 } // namespace renderer

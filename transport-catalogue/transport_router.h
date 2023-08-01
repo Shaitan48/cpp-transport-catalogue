@@ -9,6 +9,12 @@
 
 namespace transportCatalog {
 
+struct routerSettings
+{
+    int bus_wait_time_ = 0;
+    double bus_velocity_ = 0.0;
+};
+
 class Router {
 public:
     Router() = default;
@@ -23,23 +29,23 @@ public:
         BuildGraph(catalogue);
     }
 
-    Router(const json::Node& settings_node)
-        : bus_wait_time_(settings_node.AsMap().at("bus_wait_time").AsInt())
-        , bus_velocity_(settings_node.AsMap().at("bus_velocity").AsDouble()) {
+    Router(routerSettings settings_node)
+        : bus_wait_time_(settings_node.bus_wait_time_)
+        , bus_velocity_(settings_node.bus_velocity_) {
 
     }
 
-    Router(const json::Node& settings_node, const transportCatalog::TransportCatalogue& catalogue)
-        : bus_wait_time_(settings_node.AsMap().at("bus_wait_time").AsInt())
-        , bus_velocity_(settings_node.AsMap().at("bus_velocity").AsDouble()) {
+    Router(routerSettings settings_node, const transportCatalog::TransportCatalogue& catalogue)
+        : bus_wait_time_(settings_node.bus_wait_time_)
+        , bus_velocity_(settings_node.bus_velocity_) {
         BuildGraph(catalogue);
     }
 
-    Router(const json::Node& settings_node,
+    Router(routerSettings settings_node,
            graph::DirectedWeightedGraph<double> graph,
            std::map<std::string, graph::VertexId> stop_ids)
-        : bus_wait_time_(settings_node.AsMap().at("bus_wait_time").AsInt())
-        , bus_velocity_(settings_node.AsMap().at("bus_velocity").AsDouble())
+        : bus_wait_time_(settings_node.bus_wait_time_)
+        , bus_velocity_(settings_node.bus_velocity_)
         ,graph_(graph)
         ,stop_ids_(stop_ids)
     {
@@ -58,8 +64,8 @@ public:
     size_t GetGraphVertexCount();
     json::Array GetEdgesItems(const std::vector<graph::EdgeId>& edges) const;
 
-    json::Node GetSettings() const;
-    void SetSettings(const json::Node& settings_node);
+    routerSettings GetSettings() const;
+    void SetSettings(routerSettings settings_node);
 
     std::optional<graph::Router<double>::RouteInfo> GetRouteInfo(const Stop* from, const Stop* to) const;
 

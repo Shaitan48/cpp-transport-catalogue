@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <variant>
 
 #include "json.h"
 #include "map_renderer.h"
@@ -18,8 +19,10 @@ void Serialize(const transportCatalog::TransportCatalogue& catalog,
 serialize::Stop Serialize(const transportCatalog::Stop* stop);
 serialize::Bus Serialize(const transportCatalog::Bus* bus);
 
-serialize::RenderSettings GetRenderSettingSerialize(const json::Node& render_settings);
-serialize::RouterSettings GetRouterSettingSerialize(const json::Node& router_settings);
+serialize::RenderSettings GetRenderSettingSerialize(renderer::RenderSettings renderer_settings);
+
+//serialize::RouterSettings GetRouterSettingSerialize(const json::Node& router_settings);
+serialize::RouterSettings GetRouterSettingSerialize(transportCatalog::routerSettings router_settings);
 
 serialize::Router Serialize(const transportCatalog::Router& router);
 

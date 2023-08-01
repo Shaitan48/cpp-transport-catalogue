@@ -34,6 +34,22 @@ struct RenderSettings
         svg::Color underlayer_color = { svg::NoneColor };
         double underlayer_width = 0.0;
         std::vector<svg::Color> color_palette {};
+
+//        RenderSettings(){};
+//        RenderSettings(const RenderSettings& orther){
+//            width = orther.width;
+//            height = orther.height;
+//            padding = orther.padding;
+//            line_width = orther.line_width;
+//            stop_radius = orther.stop_radius;
+//            bus_label_font_size = orther.bus_label_font_size;
+//            bus_label_offset = orther.bus_label_offset;
+//            stop_label_font_size = orther.stop_label_font_size;
+//            stop_label_offset = orther.stop_label_offset;
+//            underlayer_color = orther.underlayer_color;
+//            underlayer_width = orther.underlayer_width;
+//            color_palette = orther.color_palette;
+//        };
     };
 
 
@@ -104,16 +120,13 @@ private:
     double zoom_coeff_ = 0;
 };
 
-json::Node ConvertToNode(const svg::Point& p);
 
-json::Node ConvertToNode(const svg::Color& c);
-json::Node ConvertToNode(const std::vector<svg::Color>& cv);
 
 
 class MapRenderer {
 public:
     MapRenderer() = default;
-    MapRenderer(const RenderSettings& render_settings)
+    explicit MapRenderer(RenderSettings render_settings)
         : render_settings_(render_settings)
     {}
 
@@ -126,7 +139,7 @@ public:
 
     svg::Document GetSVG(const std::map<std::string_view, const transportCatalog::Bus*>& buses) const;
 
-    json::Node GetRenderSettings() const;
+    RenderSettings GetRenderSettings() const;
 
 private:
     RenderSettings render_settings_;

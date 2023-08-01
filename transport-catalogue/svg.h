@@ -26,6 +26,11 @@ struct Rgb {
     uint8_t red;
     uint8_t green;
     uint8_t blue;
+
+protected:
+    uint8_t getRed() const;
+    uint8_t getGreen() const;
+    uint8_t getBlue() const;
 };
 
 struct Rgba : public Rgb {
@@ -40,6 +45,9 @@ struct Rgba : public Rgb {
     }
 
     double opacity;
+
+public:
+    double getOpacity() const;
 };
 
 using Color = std::variant<std::monostate, std::string, Rgb, Rgba>;

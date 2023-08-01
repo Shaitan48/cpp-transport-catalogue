@@ -110,18 +110,15 @@ json::Array Router::GetEdgesItems(const std::vector<graph::EdgeId> &edges) const
     return items_array;
 }
 
-json::Node Router::GetSettings() const
+routerSettings Router::GetSettings() const
 {
-    return json::Node(json::Dict{
-        {{"bus_wait_time"},{bus_wait_time_}},
-        {{"bus_velocity"},{bus_velocity_}}
-    });
+    return routerSettings{bus_wait_time_,bus_velocity_};
 }
 
-void Router::SetSettings(const json::Node &settings_node)
+void Router::SetSettings(routerSettings settings_node)
 {
-    bus_wait_time_ = settings_node.AsMap().at("bus_wait_time").AsInt();
-    bus_velocity_ = settings_node.AsMap().at("bus_velocity").AsDouble();
+    bus_wait_time_ = settings_node.bus_wait_time_;
+    bus_velocity_ = settings_node.bus_velocity_;
 }
 
 std::optional<graph::Router<double>::RouteInfo> Router::GetRouteInfo(const Stop *from, const Stop *to) const

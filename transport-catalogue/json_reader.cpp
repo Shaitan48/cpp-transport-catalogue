@@ -10,17 +10,72 @@ const json::Node& JsonReader::GetStatRequests() const {
     return input_.GetRoot().AsMap().at("stat_requests");
 }
 
-const json::Node &JsonReader::GetRenderSettings() const
+renderer::RenderSettings JsonReader::GetRenderSettings()const
 {
-    if (!input_.GetRoot().AsMap().count("render_settings")) return dummy_;
-    return input_.GetRoot().AsMap().at("render_settings");
+    json::Node render_settings = input_.GetRoot().AsMap().at("render_settings");
+    renderer::RenderSettings render_settings_;
+    //if (render_settings.IsNull()) return renderer::RenderSettings;
+    const json::Dict& settings_map = render_settings.AsMap();
+    render_settings_.width = settings_map.at("width").AsDouble();
+    render_settings_.height = settings_map.at("height").AsDouble();
+    render_settings_.padding = settings_map.at("padding").AsDouble();
+    render_settings_.stop_radius = settings_map.at("stop_radius").AsDouble();
+    render_settings_.line_width = settings_map.at("line_width").AsDouble();
+    render_settings_.bus_label_font_size = settings_map.at("bus_label_font_size").AsInt();
+    const json::Array& bus_label_offset = settings_map.at("bus_label_offset").AsArray();
+    render_settings_.bus_label_offset = { bus_label_offset[0].AsDouble(),
+                                         bus_label_offset[1].AsDouble() };
+    render_settings_.stop_label_font_size = settings_map.at("stop_label_font_size").AsInt();
+    const json::Array& stop_label_offset = settings_map.at("stop_label_offset").AsArray();
+    render_settings_.stop_label_offset = { stop_label_offset[0].AsDouble(),
+                                          stop_label_offset[1].AsDouble() };
+    if (settings_map.at("underlayer_color").IsArray()) {
+        const json::Array& arr = settings_map.at("underlayer_color").AsArray();
+        if (arr.size() == 3) {
+            svg::Rgb rgb_colors(arr[0].AsInt(), arr[1].AsInt(), arr[2].AsInt());
+            render_settings_.underlayer_color = rgb_colors;
+        }
+        else if (arr.size() == 4) {
+            svg::Rgba rgba_colors(arr[0].AsInt(), arr[1].AsInt(), arr[2].AsInt(), arr[3].AsDouble());
+            render_settings_.underlayer_color = rgba_colors;
+        }
+        else throw std::logic_error("Strange array");
+    }
+    else if (settings_map.at("underlayer_color").IsString()) {
+        render_settings_.underlayer_color = settings_map.at("underlayer_color").AsString();
+    }
+    else throw std::logic_error("Error color identity");
+    render_settings_.underlayer_width = settings_map.at("underlayer_width").AsDouble();
+    const json::Array& color_palette = settings_map.at("color_palette").AsArray();
+    for (const json::Node& node : color_palette) {
+        if (node.IsArray()) {
+            const json::Array& arr = node.AsArray();
+            if (arr.size() == 3) {
+                svg::Rgb rgb_colors(arr[0].AsInt(), arr[1].AsInt(), arr[2].AsInt());
+                render_settings_.color_palette.push_back(rgb_colors);
+            }
+            else if (arr.size() == 4) {
+                svg::Rgba rgba_colors(arr[0].AsInt(), arr[1].AsInt(), arr[2].AsInt(), arr[3].AsDouble());
+                render_settings_.color_palette.push_back(rgba_colors);
+            }
+            else throw std::logic_error("Strange array");
+        }
+        else if (node.IsString()) {
+            render_settings_.color_palette.push_back(node.AsString());
+        }
+        else throw std::logic_error("Error palette color identity");
+    }
+    return render_settings_;
 
 }
 
-const json::Node &JsonReader::GetRoutingSettings() const
+transportCatalog::routerSettings JsonReader::GetRoutingSettings() const
 {
-    if (!input_.GetRoot().AsMap().count("routing_settings")) return dummy_;
-    return input_.GetRoot().AsMap().at("routing_settings");
+    transportCatalog::routerSettings result;
+    if (!input_.GetRoot().AsMap().count("routing_settings")) return result;
+    result.bus_velocity_ = input_.GetRoot().AsMap().at("routing_settings").AsMap().at("bus_velocity").AsDouble();
+    result.bus_wait_time_ = input_.GetRoot().AsMap().at("routing_settings").AsMap().at("bus_wait_time").AsInt();
+    return result;
 }
 
 const json::Node &JsonReader::GetSerializationSettings() const
@@ -132,7 +187,7 @@ renderer::MapRenderer JsonReader::FillRenderSettings(const json::Dict &request_m
         render_settings.color_palette.push_back(ParceColor(color_element));
     }
 
-    return render_settings;
+    return renderer::MapRenderer(render_settings);
 }
 
 transportCatalog::Router JsonReader::FillRoutingSettings(const json::Node &settings) const
@@ -365,4 +420,33 @@ svg::Color JsonReader::ParceColor(const json::Node &node) const{
                     throw std::logic_error("wrong underlayer/color_palette type");
         }
         else throw std::logic_error("wrong underlayer/color_palette color");
+}
+
+json::Node ConvertToNode(const svg::Point &p) {
+        return json::Node(json::Array{ {p.x}, {p.y} });
+}
+
+json::Node ConvertToNode(const svg::Color &c) {
+        if (std::holds_alternative<std::string>(c)) {
+                return json::Node(std::get<std::string>(c));
+        }
+        else if (std::holds_alternative<svg::Rgb>(c)) {
+                const svg::Rgb& rgb = std::get<svg::Rgb>(c);
+                return json::Node(json::Array{ {rgb.red}, {rgb.green}, {rgb.blue} });
+        }
+        else if (std::holds_alternative<svg::Rgba>(c)) {
+                const svg::Rgba& rgba = std::get<svg::Rgba>(c);
+                return json::Node(json::Array{ {rgba.red}, {rgba.green}, {rgba.blue}, {rgba.opacity} });
+        }
+        else
+                return json::Node("none");
+}
+
+json::Node ConvertToNode(const std::vector<svg::Color> &cv) {
+        json::Array result;
+        result.reserve(cv.size());
+        for (const auto& c : cv) {
+                result.emplace_back(ConvertToNode(c));
+        }
+        return json::Node(std::move(result));
 }

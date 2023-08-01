@@ -41,64 +41,69 @@ serialize::Bus Serialize(const transportCatalog::Bus *bus) {
     return result;
 }
 
-serialize::Point GetPointSerialize(const json::Array& p) {
+serialize::Point GetPointSerialize(const svg::Point& p) {
     serialize::Point result;
-    result.set_x(p[0].AsDouble());
-    result.set_y(p[1].AsDouble());
+    result.set_x(p.x);
+    result.set_y(p.y);
     return result;
 }
 
-serialize::Color GetColorSerialize(const json::Node& node) {
+serialize::Color GetColorSerialize(const svg::Color& color) {
     serialize::Color result;
-    if (node.IsArray()) {
-        const json::Array& arr = node.AsArray();
-        if (arr.size() == 3) {
-            serialize::RGB rgb;
-            rgb.set_red(arr[0].AsInt());
-            rgb.set_green(arr[1].AsInt());
-            rgb.set_blue(arr[2].AsInt());
-            *result.mutable_rgb() = rgb;
-        }
-        else if (arr.size() == 4) {
-            serialize::RGBA rgba;
-            rgba.set_red(arr[0].AsInt());
-            rgba.set_green(arr[1].AsInt());
-            rgba.set_blue(arr[2].AsInt());
-            rgba.set_opacity(arr[3].AsDouble());
-            *result.mutable_rgba() = rgba;
-        }
+    switch(color.index()){
+    case(3):{
+        serialize::RGBA rgba;
+        rgba.set_red(std::get<svg::Rgba>(color).red);
+        rgba.set_green(std::get<svg::Rgba>(color).green);
+        rgba.set_blue(std::get<svg::Rgba>(color).blue);
+        rgba.set_opacity(std::get<svg::Rgba>(color).opacity);
+        *result.mutable_rgba() = rgba;
+        break;
     }
-    else if (node.IsString()) {
-        result.set_name(node.AsString());
+    case(2):{
+        serialize::RGB rgb;
+        rgb.set_red(std::get<svg::Rgb>(color).red);
+        rgb.set_green(std::get<svg::Rgb>(color).green);
+        rgb.set_blue(std::get<svg::Rgb>(color).blue);
+        *result.mutable_rgb() = rgb;
+        break;
+    }
+    case(1):{
+        result.set_name(std::get<string>(color));
+        break;
+    }
+    case(0):{
+        break;
+    }
     }
     return result;
 }
 
-serialize::RenderSettings GetRenderSettingSerialize(const json::Node& render_settings) {
-    const json::Dict& rs_map = render_settings.AsMap();
+serialize::RenderSettings GetRenderSettingSerialize(renderer::RenderSettings renderer_settings) {
+    //const json::Dict& rs_map = render_settings.AsMap();
     serialize::RenderSettings result;
-    result.set_width(rs_map.at("width"s).AsDouble());
-    result.set_height(rs_map.at("height"s).AsDouble());
-    result.set_padding(rs_map.at("padding"s).AsDouble());
-    result.set_stop_radius(rs_map.at("stop_radius"s).AsDouble());
-    result.set_line_width(rs_map.at("line_width"s).AsDouble());
-    result.set_bus_label_font_size(rs_map.at("bus_label_font_size"s).AsInt());
-    *result.mutable_bus_label_offset() = GetPointSerialize(rs_map.at("bus_label_offset"s).AsArray());
-    result.set_stop_label_font_size(rs_map.at("stop_label_font_size"s).AsInt());
-    *result.mutable_stop_label_offset() = GetPointSerialize(rs_map.at("stop_label_offset"s).AsArray());
-    *result.mutable_underlayer_color() = GetColorSerialize(rs_map.at("underlayer_color"s));
-    result.set_underlayer_width(rs_map.at("underlayer_width"s).AsDouble());
-    for (const auto& c : rs_map.at("color_palette"s).AsArray()) {
+    result.set_width(renderer_settings.width);
+    result.set_height(renderer_settings.height);
+    result.set_padding(renderer_settings.padding);
+    result.set_stop_radius(renderer_settings.stop_radius);
+    result.set_line_width(renderer_settings.line_width);
+    result.set_bus_label_font_size(renderer_settings.bus_label_font_size);
+    *result.mutable_bus_label_offset() = GetPointSerialize(renderer_settings.bus_label_offset);
+    result.set_stop_label_font_size(renderer_settings.stop_label_font_size);
+    *result.mutable_stop_label_offset() = GetPointSerialize(renderer_settings.stop_label_offset);
+    *result.mutable_underlayer_color() = GetColorSerialize(renderer_settings.underlayer_color);
+    result.set_underlayer_width(renderer_settings.underlayer_width);
+    for (const auto& c : renderer_settings.color_palette) {
         *result.add_color_palette() = GetColorSerialize(c);
     }
     return result;
 }
 
-serialize::RouterSettings GetRouterSettingSerialize(const json::Node& router_settings) {
-    const json::Dict& rs_map = router_settings.AsMap();
+serialize::RouterSettings GetRouterSettingSerialize(transportCatalog::routerSettings router_settings) {
+    //const json::Dict& rs_map = router_settings.AsMap();
     serialize::RouterSettings result;
-    result.set_bus_wait_time(rs_map.at("bus_wait_time"s).AsInt());
-    result.set_bus_velocity(rs_map.at("bus_velocity"s).AsDouble());
+    result.set_bus_wait_time(router_settings.bus_wait_time_);
+    result.set_bus_velocity(router_settings.bus_velocity_);
     return result;
 }
 
@@ -169,37 +174,52 @@ void AddBusFromDB(transportCatalog::TransportCatalogue& catalog, const serialize
     }
 }
 
-json::Node ConvertToNode(const serialize::Point& p) {
-    return json::Node(json::Array{ {p.x()}, {p.y()} });
+svg::Point ConvertToPoint(const serialize::Point& p) {
+    return svg::Point(p.x(), p.y());
 }
 
-json::Node ConvertToNode(const serialize::Color& c) {
+svg::Color ConvertToColor(const serialize::Color& c) {
     if (!c.name().empty()) {
-        return json::Node(c.name());
+        return svg::Color(c.name());
     }
     else if (c.has_rgb()) {
         const serialize::RGB& rgb = c.rgb();
-        return json::Node(json::Array{ {rgb.red()}, {rgb.green()}, {rgb.blue()} });
+        return svg::Rgb(rgb.red(), rgb.green(), rgb.blue());
     }
     else if (c.has_rgba()) {
         const serialize::RGBA& rgba = c.rgba();
-        return json::Node(json::Array{ {rgba.red()}, {rgba.green()}, {rgba.blue()}, {rgba.opacity()} });
+        return svg::Rgba(rgba.red(), rgba.green(), rgba.blue(), rgba.opacity());
     }
     else
-        return json::Node("none"s);
+        return svg::NoneColor;
 }
 
-json::Node ConvertToNode(const google::protobuf::RepeatedPtrField<serialize::Color>& cv) {
-    json::Array result;
+std::vector<svg::Color> ConvertToPalete(const google::protobuf::RepeatedPtrField<serialize::Color>& cv) {
+    std::vector<svg::Color> result;
     result.reserve(cv.size());
     for (const auto& c : cv) {
-        result.emplace_back(ConvertToNode(c));
+        result.emplace_back(ConvertToColor(c));
     }
-    return json::Node(std::move(result));
+    return result;
 }
 
-json::Node GetRenderSettingsFromDB(const serialize::TransportCatalogue& database) {
+renderer::RenderSettings GetRenderSettingsFromDB(const serialize::TransportCatalogue& database) {
     const serialize::RenderSettings& rs = database.render_settings();
+    renderer::RenderSettings renderer_settings;
+    renderer_settings.width = rs.width();
+    renderer_settings.height = rs.height();
+    renderer_settings.padding = rs.padding();
+    renderer_settings.stop_radius = rs.stop_radius();
+    renderer_settings.line_width = rs.line_width();
+    renderer_settings.bus_label_font_size = rs.bus_label_font_size();
+    renderer_settings.bus_label_offset = svg::Point(rs.bus_label_offset().x(),rs.bus_label_offset().y());
+    renderer_settings.stop_label_font_size = rs.stop_label_font_size();
+    renderer_settings.stop_label_offset = svg::Point(rs.stop_label_offset().x(),rs.stop_label_offset().y());
+    renderer_settings.underlayer_color = ConvertToColor(rs.underlayer_color());
+    renderer_settings.underlayer_width = rs.underlayer_width();
+    renderer_settings.color_palette = ConvertToPalete(rs.color_palette());
+    return renderer_settings;
+    /*
     return json::Node(json::Dict{
                                  {{"width"s},{ rs.width() }},
                                  {{"height"s},{ rs.height() }},
@@ -214,14 +234,12 @@ json::Node GetRenderSettingsFromDB(const serialize::TransportCatalogue& database
                                  {{"underlayer_width"s},{rs.underlayer_width()}},
                                  {{"color_palette"s},ConvertToNode(rs.color_palette())},
                                  });
+*/
 }
 
-json::Node GetRouterSettingsFromDB(const serialize::Router& router) {
+transportCatalog::routerSettings GetRouterSettingsFromDB(const serialize::Router& router) {
     const serialize::RouterSettings& rs = router.router_settings();
-    return json::Node(json::Dict{
-        {{"bus_wait_time"s},{ rs.bus_wait_time() }},
-        {{"bus_velocity"s},{ rs.bus_velocity() }}
-    });
+    return transportCatalog::routerSettings{rs.bus_wait_time(),rs.bus_velocity()};
 }
 
 graph::DirectedWeightedGraph<double> GetGraphFromDB(const serialize::Router& router) {

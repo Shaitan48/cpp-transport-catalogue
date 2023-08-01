@@ -169,4 +169,24 @@ std::ostream& operator<<(std::ostream& out, StrokeLineJoin line_join) {
     return out;
 }
 
+uint8_t Rgb::getGreen() const
+{
+    return green;
+}
+
+uint8_t Rgb::getBlue() const
+{
+    return blue;
+}
+
+uint8_t Rgb::getRed() const
+{
+    return red;
+}
+
+double Rgba::getOpacity() const
+{
+    return opacity;
+}
+
 }  // namespace svg
